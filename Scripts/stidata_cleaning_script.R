@@ -12,10 +12,8 @@
 ################################################################################
 
 #Load necessary packages
-  rm(list=ls())
 
 source("scripts/install_packages.R")
-
 
 #read the excel datasets from the directory
 
@@ -27,13 +25,16 @@ source("scripts/install_packages.R")
 #Clean the sex variable: two vars with some different values
 
   unique(df$Sex...35)
-  unique(df$Sex...47)
+  table(df$Sex...35, exclude=NULL)
 
+  unique(df$Sex...47)
+  table(df$Sex...47, exclude=NULL)
+  
+#check if the two sex vars are exact match and correctly replace if possible(confirm correct gender with data collection team)
   df1 <- df %>% 
-  #check if the two sex vars are exact match and correctly replace if possible(confirm correct gender with data collection team)
     relocate(Sex...35, .before = Sex...47) %>% 
     dplyr::mutate (Sexdif= ifelse(df$Sex...47 == df$Sex...35, "Same", "Different"), #check if exact match
-                   Sex= case_when(Sexdif %in% c("Same", "Different") ~df$Sex...47,
+                   Sex= case_when(Sexdif %in% c("Same", "Different") ~df$Sex...47,  #reassign gender
                                   !is.na(df$Sex...47) & is.na(df$Sex...35) ~df$Sex...47,
                                   !is.na(df$Sex...35) & is.na(df$Sex...47) ~df$Sex...35,
                                   TRUE ~"No sex" #reassign values
@@ -46,8 +47,7 @@ source("scripts/install_packages.R")
     select(IdNumber, A1Age, Sex...35, Sex...47, Sexdif, Sex) %>% 
     filter(df1$Sexdif=="Different" |is.na(df1$Sexdif) | Sex=="No sex")
 
-  table(df1$Sex)
-  
+
 #remove the unwanted sex variables after creating clean one 
   
   df1<- df1 %>% 
@@ -82,12 +82,10 @@ source("scripts/install_packages.R")
   dupID2<-janitor::get_dupes(df1,IdNumber) %>% 
     select(IdNumber,dupe_count, Date, A1Age, A2Occupation, Weight, Height)
   
-#Check type of the Id number and convert to character if needed
+#Convert ID number to character if needed
   
-  class(df1$IdNumber)
   df1$IdNumber <- as.character(df1$IdNumber)
   
-
 #Check CaseStatus and clean(confirm correct status value with data collection team)
   
   table(df1$CaseStatus)
@@ -116,22 +114,22 @@ source("scripts/install_packages.R")
   table(df1$CaseStatus)
   
 #Check for dates and clean Date
-  table(df1$Date) #nothing to clean
-  
+
 #check for age and clean A1Age/ aggregate
 
   df1<- df1 %>% 
-    mutate(AgeCat= case_when(A1Age <18 ~ "Below 18 Years",
-                             A1Age >=18 & A1Age <=35 ~ "18 to 35 Years",
-                             A1Age>35 & A1Age<=50 ~ "36 to 50 Years",
-                             A1Age>50 ~ "Above 50 Years",
-                             TRUE~ "Not categorized")) %>% 
+    mutate(AgeCat= case_when(A1Age < 18 ~ "Below 18 Years",
+                             A1Age >= 18 & A1Age <= 29 ~ "18 to 29 Years",
+                             A1Age >= 30 & A1Age <= 39 ~ "30 to 39 Years",
+                             A1Age >= 40 & A1Age <= 49 ~ "40 to 49 Years",
+                             A1Age >= 50 ~ "Above 50 Years",
+                             TRUE ~ "Not categorized")) %>% 
     relocate(AgeCat, .after=A1Age)
   
   #Confirm age categories
   table(df1$AgeCat)
   
-#extract the leading digits into a new variable or remove special characters
+#remove the leading digits into a new variable or remove special characters
   my_vars <- c("A2Occupation","A3Church","A4LevelOfEducation","A5MaritalStatus","D2Group1","D2Group2","E8WhyhaveSTI",
                "N10givereceiveforsex","N11Usedcondom","N12UseCondom","N13TakenAlcohol","Typeofsti","N9Relationship")
  
@@ -140,12 +138,12 @@ source("scripts/install_packages.R")
     
     for (col_name in names(df2)) {
       
-      if (any(my_vars== col_name)){
+      if (any(my_vars == col_name)){
         
       #remove leading digits to be codes for the values
         
-      new_col_name <- paste0(col_name, "_code") #create a new column
-      df2[[new_col_name]] =str_extract(df2[[col_name]],"^\\d+") 
+      new_col_name <- paste0(col_name, "_code")} #create a new column
+      df2[[new_col_name]] = str_extract(df2[[col_name]],"^\\d+") 
       df2[[col_name]] = str_trim(str_to_sentence(str_replace_all(df2[[col_name]], "\\d\\W", "")))
       relocate(df2[[new_col_name]], .before= df2[[col_name]])
       } 
