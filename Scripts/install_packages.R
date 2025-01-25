@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 
   #Load packages needed for most R data tasks
-  
+  rm(list=ls())
   if(!require(pacman)) install.packages("pacman")
   pacman::p_load(
   
