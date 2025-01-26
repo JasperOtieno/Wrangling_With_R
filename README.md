@@ -6,5 +6,3 @@ format date,reorder variables of similar pattern,
 remove duplicates,extract special characters and digits and add them into new variables,
 Create categorical variable from existing variable eg Age,
 and save the clean dataset fit for analysis
-
-
