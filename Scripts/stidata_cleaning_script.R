@@ -1,8 +1,7 @@
 # PROGRAM  HEADER ##############################################################
 
-#SCRIPT TITLE           : stidata_cleaning_script  
 #PROJECT                : Data Cleaning
-#TASK                   : Import and wrangle the STI dataset for analysis
+#TASK                   : Import and clean the STI dataset for analysis
 #CREATED BY             : Jasper         
 #DATE CREATED           : 25/Jan/2025                         
 #DATE LAST MODIFIED     :                                                                                                 
@@ -41,13 +40,6 @@ source("scripts/install_packages.R")
                                ))
  
 
-#output cases where sex is different or missing
-  
-  sex_diff <- df1 %>% 
-    select(IdNumber, A1Age, Sex...35, Sex...47, Sexdif, Sex) %>% 
-    filter(df1$Sexdif=="Different" |is.na(df1$Sexdif) | Sex=="No sex")
-
-
 #remove the unwanted sex variables after creating clean one 
   
   df1<- df1 %>% 
@@ -77,18 +69,11 @@ source("scripts/install_packages.R")
           rename(IdNumber = IdNumber2) %>% 
           relocate(IdNumber, .before = CaseStatus)
   
-#check again for duplicates
-  
-  dupID2<-janitor::get_dupes(df1,IdNumber) %>% 
-    select(IdNumber,dupe_count, Date, A1Age, A2Occupation, Weight, Height)
-  
 #Convert ID number to character if needed
   
   df1$IdNumber <- as.character(df1$IdNumber)
   
 #Check CaseStatus and clean(confirm correct status value with data collection team)
-  
-  table(df1$CaseStatus)
   
   #output cases where casestatus is 3  
   case3 <- df1 %>% 
@@ -110,10 +95,6 @@ source("scripts/install_packages.R")
                                  levels = 1:2,
                                  labels = c("Positive", "Negative")) #assign labels
   
-#confirm cleaned status
-  table(df1$CaseStatus)
-  
-#Check for dates and clean Date
 
 #check for age and clean A1Age/ aggregate
 
@@ -130,10 +111,9 @@ source("scripts/install_packages.R")
   #Confirm age categories
   table(df1$AgeCat)
   
-#extract the leading digits into a new variable of code and remove special characters too
- #create a vector of variables of interest
-  
-  my_vars <- c() 
+#extract leading digits into a new variable as codes and remove special characters too
+
+  my_vars <- c()  #initialize an empty vector
   
   for (col_name in names(df1)){
     if(any(grepl("^\\d+([[:punct:]]\\s|\\s)\\w", df[[col_name]]))){
@@ -142,11 +122,9 @@ source("scripts/install_packages.R")
     
     if (any(my_vars == col_name)){
         
-    #remove leading digits to be codes for the values
-        
-    new_col_name <- paste0(col_name, "_code") #create a new column
-    df1[[new_col_name]] = as.numeric(str_extract(df1[[col_name]],"^\\d+")) 
-    df1[[col_name]] = str_trim(str_to_sentence(str_replace_all(df1[[col_name]], "\\d\\W", "")))
+    new_col_name <- paste0(col_name, "_code") #create a new column with suffix _code
+    df1[[new_col_name]] = as.numeric(str_extract(df1[[col_name]],"^\\d+")) #extract the digits as numerics
+    df1[[col_name]] = str_trim(str_to_sentence(str_replace_all(df1[[col_name]], "\\d\\W", ""))) #replace the leading digits and non word characters with blank
     } 
  
   }
@@ -154,8 +132,7 @@ source("scripts/install_packages.R")
 #reorder the new columns next to corresponding column
   variables <- names(df1)
   
-  # identify the unique pattern and remove them
-  prefixes <- unique(sub("_code$","",variables))
+  prefixes <- unique(sub("_code$","",variables)) #create unique list of variables removing those suffixed with _code(pattern)
   
   # initialize an ordered vector
   
