@@ -1,3 +1,12 @@
 # Wrangling With R
-This is a project to clean a dummy study data leveraging on tidyverse metapackage capability to import the STI study dataset, rename variables, sort, create new variables and save a clean dataset fit for analysis, Janitor package to remove duplicates,
+This is a personal project to clean a dummy study data leveraging on the capability of the tidyverse metapackage capability to:
+import the raw study dataset, 
+rename variables,
+create multiple new variables,
+format date,
+reorder variables of similar pattern,
+remove duplicates
+extract special characters and digits and add them into new variables
+Create categorical variable from existing variable eg Age
+and save the clean dataset fit for analysis
 
