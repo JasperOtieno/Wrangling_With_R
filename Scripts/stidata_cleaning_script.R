@@ -99,12 +99,12 @@ source("scripts/install_packages.R")
 #check for age and clean A1Age/ aggregate
 
   df1<- df1 %>% 
-    mutate(AgeCat= case_when(A1Age < 18 ~ "Child",
-                             A1Age >= 18 & A1Age <= 29 ~ "Youth",
-                             A1Age >= 30 & A1Age <= 39 ~ "Young Adult",
-                             A1Age >= 40 & A1Age <= 49 ~ "Adult",
-                             A1Age >= 50 & A1Age <= 59 ~ "Senior Adult",
-                             A1Age >= 60  ~ "Elderly",
+    mutate(AgeCat= case_when(A1Age < 13 ~ "Children",
+                             A1Age >= 13 & A1Age <= 19~ "Teenagers",
+                             A1Age >= 20 & A1Age <= 39 ~ "Young adults",
+                             A1Age >= 40 & A1Age <= 59 ~ "Middle-aged adults",
+                             A1Age >= 60 & A1Age <= 79 ~ "Older adults",
+                             A1Age >= 80  ~ "Elderly",
                              TRUE ~ "Not categorized")) %>% 
     relocate(AgeCat, .after=A1Age)
   
@@ -153,7 +153,47 @@ source("scripts/install_packages.R")
   
 #format date to dd-MMM-yyyy
   df1$Date <- format(df1$Date, "%d-%b-%Y") 
-    
+  
+#rename variables
+  df1 <- df1 %>% 
+    rename(subject_number=IdNumber,
+           gender = Sex,
+           sti_status =CaseStatus,
+           date_collection=Date,
+           subjects_age=A1Age,
+           age_category=AgeCat,
+           occupation=A2Occupation,
+           occupation_code=A2Occupation_code,
+           church=A3Church,
+           church_code=A3Church_code,
+           education_level = A4LevelOfEducation,
+           education_level_code=A4LevelOfEducation_code,
+           marital_status=A5MaritalStatus,
+           marital_status_code = A5MaritalStatus_code,
+           weight=Weight,
+           height =Height,
+           has_sti =C3StiYesno,
+           burial_society = D1BurialSociety,
+           religius_group = D1religiousgrp,
+           savings_club = D1savingsClub,
+           traders_association =D1tradersAssoc,
+           group_one =D2Group1,
+           group_one_code=D2Group1_code,
+           group_two = D2Group2,
+           group_two_code=D2Group2_code,
+           education =D3Education,
+           funeral_assistance = D3FuneralAssistance,
+           health_services = D3HealthServices,
+           illness_duration = DurationOfillness,
+           why_have_sti =E8WhyhaveSTI,
+           having_sti_code =E8WhyhaveSTI_code,
+           givereceiveforsex = N10givereceiveforsex,
+           givereceiveforsex_code = N10givereceiveforsex_code,
+           used_condom = N11Usedcondom,
+           used_condom_code =N11Usedcondom_code,
+           use_condom = N12UseCondom,
+           use_condom_code =N12UseCondom_code)
+
 
 #Export Clean data to correct repository for analysis in csv or xlsx format
   #write_csv(df1, "DataClean/STIData_Cleaned.csv", append=FALSE, col_names = TRUE)
