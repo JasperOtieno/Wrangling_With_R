@@ -88,12 +88,27 @@ source("scripts/install_packages.R")
             rename(CaseStatus=CaseStatus2) %>% 
             relocate(CaseStatus, .after = IdNumber)
 
-#Convert CaseStatus to a factor and label if it's numeric
-  class(df1$CaseStatus)
-  
+#Convert to a factor and label if it's numeric
+
   df1$CaseStatus <- factor(df1$CaseStatus,
                                  levels = 1:2,
                                  labels = c("Positive", "Negative")) #assign labels
+  
+  df1$N15LivingTogether <- factor(df1$N15LivingTogether,
+                           levels = 1:2,
+                           labels = c("Yes", "No")) #assign labels
+  
+  df1$N3HadAnSti <- factor(df1$N3HadAnSti,
+                                  levels = 1:2,
+                                  labels = c("Yes", "No")) #assign labels
+  
+  df1$AlcoholUse <- factor(df1$AlcoholUse,
+                           levels = 1:2,
+                           labels = c("Yes", "No")) #assign labels
+  
+  df1$C3StiYesno <- factor(df1$C3StiYesno,
+                           levels = 1:2,
+                           labels = c("Yes", "No")) #assign labels
   
 
 #check for age and clean A1Age/ aggregate
@@ -154,46 +169,57 @@ source("scripts/install_packages.R")
 #format date to dd-MMM-yyyy
   df1$Date <- format(df1$Date, "%d-%b-%Y") 
   
+  
+  #deselect variables not needed for analysis
+  df1 <- df1 %>% 
+    select(-c(A2Occupation_code, 
+              A3Church_code,
+              A4LevelOfEducation_code,
+              A5MaritalStatus_code,
+              D2Group1_code,
+              D2Group2_code,
+              E8WhyhaveSTI_code,
+              N10givereceiveforsex_code,
+              N11Usedcondom_code,
+              N12UseCondom_code,
+              burial_society = D1BurialSociety,
+              religius_group = D1religiousgrp,
+              savings_club = D1savingsClub,
+              traders_association =D1tradersAssoc,
+              education =D3Education,
+              funeral_assistance = D3FuneralAssistance,
+              health_services = D3HealthServices,
+              N13TakenAlcohol_code,
+              Typeofsti_code,
+              N9Relationship_code,
+              HabitationStatus,
+              Unemployed,
+              Education,
+              Belong,
+              ReceiveHelp,
+              D3receivecredit,
+              N14DoYouHave))
+  
+  
 #rename variables
   df1 <- df1 %>% 
     rename(subject_number=IdNumber,
            gender = Sex,
            sti_status =CaseStatus,
-           date_collection=Date,
+           date_of_collection=Date,
            subjects_age=A1Age,
            age_category=AgeCat,
            occupation=A2Occupation,
-           occupation_code=A2Occupation_code,
            church=A3Church,
-           church_code=A3Church_code,
-           education_level = A4LevelOfEducation,
-           education_level_code=A4LevelOfEducation_code,
+           level_of_education = A4LevelOfEducation,
            marital_status=A5MaritalStatus,
-           marital_status_code = A5MaritalStatus_code,
            weight=Weight,
            height =Height,
            has_sti =C3StiYesno,
-           burial_society = D1BurialSociety,
-           religius_group = D1religiousgrp,
-           savings_club = D1savingsClub,
-           traders_association =D1tradersAssoc,
            group_one =D2Group1,
-           group_one_code=D2Group1_code,
            group_two = D2Group2,
-           group_two_code=D2Group2_code,
-           education =D3Education,
-           funeral_assistance = D3FuneralAssistance,
-           health_services = D3HealthServices,
            illness_duration = DurationOfillness,
-           why_have_sti =E8WhyhaveSTI,
-           having_sti_code =E8WhyhaveSTI_code,
-           givereceiveforsex = N10givereceiveforsex,
-           givereceiveforsex_code = N10givereceiveforsex_code,
-           used_condom = N11Usedcondom,
-           used_condom_code =N11Usedcondom_code,
-           use_condom = N12UseCondom,
-           use_condom_code =N12UseCondom_code)
-
+           why_have_sti =E8WhyhaveSTI)
 
 #Export Clean data to correct repository for analysis in csv or xlsx format
   #write_csv(df1, "DataClean/STIData_Cleaned.csv", append=FALSE, col_names = TRUE)
