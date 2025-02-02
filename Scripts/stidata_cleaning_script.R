@@ -221,8 +221,6 @@ source("scripts/install_packages.R")
            illness_duration = DurationOfillness,
            why_have_sti =E8WhyhaveSTI)
 
-  
-
 #Export Clean data to correct repository for analysis in csv or xlsx format
   #write_csv(df1, "DataClean/STIData_Cleaned.csv", append=FALSE, col_names = TRUE)
   
