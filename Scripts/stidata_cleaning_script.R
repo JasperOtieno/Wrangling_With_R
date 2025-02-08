@@ -11,6 +11,7 @@
 ################################################################################
 
 #Load necessary packages
+rm(list = ls())
 
 source("scripts/install_packages.R")
 
@@ -73,6 +74,7 @@ source("scripts/install_packages.R")
   
   df1$IdNumber <- as.character(df1$IdNumber)
   
+
 #Check CaseStatus and clean(confirm correct status value with data collection team)
   
   #output cases where casestatus is 3  
@@ -169,8 +171,19 @@ source("scripts/install_packages.R")
 #format date to dd-MMM-yyyy
   df1$Date <- format(df1$Date, "%d-%b-%Y") 
   
+  # Replace blank fields with 999
+  df1[] <- lapply(df1, function(x) {
+    if (is.factor(x)) x <- as.character(x)  # Convert factors to characters
+    if (is.character(x)) {
+      x[x == "" | is.na(x)] <- "999"  # Replace blanks with NA
+    } else if (is.numeric(x)) {
+      x[is.na(x)] <- 999  # Replace NA with 999
+    }
+    return(x)  # Return modified column without changing its length
+  })
   
-  #deselect variables not needed for analysis
+
+#deselect variables not needed for analysis
   df1 <- df1 %>% 
     select(-c(A2Occupation_code, 
               A3Church_code,
