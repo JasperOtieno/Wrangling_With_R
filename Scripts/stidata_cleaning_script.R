@@ -239,8 +239,8 @@ source("scripts/install_packages.R")
   
   writexl::write_xlsx(df1, "DataClean/STIData_Cleaned.xlsx")
 
+
+  writexl::write_xlsx(df1, "../Visualization_With_R/Visualizing_Gapminder/Data/STIData_Cleaned.xlsx")
   
-  
- 
   
   
