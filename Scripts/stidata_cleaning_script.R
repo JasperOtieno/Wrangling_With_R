@@ -124,15 +124,13 @@ source("scripts/install_packages.R")
                              A1Age >= 80  ~ "Elderly",
                              TRUE ~ "Not categorized")) %>% 
     relocate(AgeCat, .after=A1Age)
-  
-  #Confirm age categories
-  table(df1$AgeCat)
-  
+
 #extract leading digits into a new variable as codes and remove special characters too
 
   my_vars <- c()  #initialize an empty vector
   
   for (col_name in names(df1)){
+    #identify pattern for selecting variables (starts with digits then punctuations, space words)
     if(any(grepl("^\\d+([[:punct:]]\\s|\\s)\\w", df[[col_name]]))){
       my_vars <- c(my_vars, col_name)
     }
@@ -143,7 +141,6 @@ source("scripts/install_packages.R")
     df1[[new_col_name]] = as.numeric(str_extract(df1[[col_name]],"^\\d+")) #extract the digits as numerics
     df1[[col_name]] = str_trim(str_to_sentence(str_replace_all(df1[[col_name]], "\\d\\W", ""))) #replace the leading digits and non word characters with blank
     } 
- 
   }
 
 #reorder the new columns next to corresponding column
@@ -183,7 +180,7 @@ source("scripts/install_packages.R")
   })
   
 
-#deselect variables not needed for analysis
+#remove variables not needed for analysis
   df1 <- df1 %>% 
     select(-c(A2Occupation_code, 
               A3Church_code,
@@ -211,11 +208,13 @@ source("scripts/install_packages.R")
               Belong,
               ReceiveHelp,
               D3receivecredit,
-              N14DoYouHave))
+              N14DoYouHave,
+              D2Group1,
+              D2Group2))
   
   
 #rename variables
-  df1 <- df1 %>% 
+  df2 <- df1 %>% 
     rename(subject_number=IdNumber,
            gender = Sex,
            sti_status =CaseStatus,
@@ -229,18 +228,33 @@ source("scripts/install_packages.R")
            weight=Weight,
            height =Height,
            has_sti =C3StiYesno,
-           group_one =D2Group1,
-           group_two = D2Group2,
            illness_duration = DurationOfillness,
            why_have_sti =E8WhyhaveSTI)
+  
+#calculate BMI
+
+   # Function to calculate BMI and categorize it
+   calculate_BMI <- function(data, Weight, Height) {
+     data %>%
+       mutate(
+         bmi = round({{Weight}}/({{Height}}/100)^2, 2),  # Calculate BMI
+         bmi_category = case_when(
+           bmi < 18.5 ~ "Underweight",
+           bmi >= 18.5 & bmi < 25 ~ "Normal weight",
+           bmi >= 25 & bmi < 30 ~ "Overweight",
+           bmi >= 30 ~ "Obese"
+         )
+       )
+   }
+   df2 <- calculate_BMI(df2, weight, height)
 
 #Export Clean data to correct repository for analysis in csv or xlsx format
   #write_csv(df1, "DataClean/STIData_Cleaned.csv", append=FALSE, col_names = TRUE)
   
-  writexl::write_xlsx(df1, "DataClean/STIData_Cleaned.xlsx")
+  writexl::write_xlsx(df2, "DataClean/STIData_Cleaned.xlsx")
 
 
-  writexl::write_xlsx(df1, "../Visualization_With_R/Visualizing_Gapminder/Data/STIData_Cleaned.xlsx")
+  writexl::write_xlsx(df2, "../Visualization_With_R/Visualizing_Gapminder/Data/STIData_Cleaned.xlsx")
   
   
   
